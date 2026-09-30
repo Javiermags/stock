@@ -194,7 +194,7 @@ html.mob .toast{top:auto;bottom:120px}
 <div class="hitc hide" id="hitc"></div>
 <div class="dlg hide" id="dlg"><div>
  <h3>Iniciar sesión</h3>
- <label>Usuario<select id="c_user"></select></label>
+ <label>Nombre<input id="c_user" autocomplete="username" autocapitalize="words"></label>
  <label>Contraseña<input id="c_pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')document.getElementById('c_ok').click()"></label>
  <div class="err" id="c_err"></div>
  <details class="adv"><summary>Avanzado (token manual)</summary>
@@ -396,7 +396,7 @@ function scanWorkbook(wb){
  return {map,src,shared,used,filas,hojas:wb.SheetNames.length};
 }
 
-const USERS=[{"n": "Javi", "a": true, "s": "1r7tUoxeimr9m7lccWVfwA==", "i": "EkWorjmMxAB9ezre", "c": "F+UQOqd1aAYivD72Ip0aeuBIHDK47e3yymp/hs+CE7pDGvjQ4gI6HMGY54ng9U5LqtPRc5os83oLd2PEIDxV/zPJVXM/wA9eLkZpcOTaytw/JqrIOD/5ZbzBf9CdqrPME1o/w2DcqvXyEzZoYQ=="}, {"n": "Jonas", "a": false, "s": "hU3o+FB9AbLu+wexnt1zrQ==", "i": "J22Knhfj0UH+8Z3H", "c": "SihfzgC9lViZwPcLTS/eB854y277hR32AdvLpxBJIOKbgrHyMm0xr+wjuOuH/EY0E9zr8KPGeb6fvqPvTKPKax/sMjaJuJQBHObPHE5Lv2hFMtnPxENxokywhtZnFP60DHucLKJfaPEI2M3ryw=="}, {"n": "Carlos", "a": false, "s": "voLV8ugLmkrPD5i2uf4Dgg==", "i": "HS4s/uqlY/cAXu8s", "c": "fOaVAN+ey4wxUwFoOvPjMoayZLKmvP78PlBFipZN6U32SF2OlYO5LLMiXtyePE4aT7SU3QPH08QZZbSDE3d/fkMg6waQBXxm1joUut9ICeBsTR0biRkKoMb1Kt70SgMoJs0+sWEmeSFsUUXaYA=="}, {"n": "Sergi", "a": false, "s": "xDFVM7I0+1LpGv1eAN2SmQ==", "i": "oQzI/aB17B0LxJJy", "c": "2BXdXc4j6iMAZ30s/3/V3PhqqP3RmBVP5DX0t0U7FY1/drSjmS454BHdkb2u8Qekdlk2EfK/BaYlaKDi43U7zfuEbsH7lca6KV78TTv+xwob0mkkzmrQOrxz5Mo2P8T7uE1oBSvFABnxAuYTNA=="}];
+const USERS=[{"s": "VCqcZ/3UmHC6QYNhlvH30w==", "i": "i2OJpuYyxCVOiW8v", "c": "JhfXsZB5S6aaBHxPFS5Zc52y77qrNQZcxm/wzYtCdOLdWEI4KdaVmxfAe3VHhwItTttMF/aeM82NG4OsA5v1tiqLj9EX8gVzB3b59y2ASCHVr/HWYAdxwm4LPHzH+MUygo2Fjzzzuz21rjouqpRlYNvS62OmU/c/fqe7V/Of4TCddHhk3xtv1Z6CcuorZA=="}, {"s": "k7rKpUpL23RhhE9NU8YVug==", "i": "RsYi35NS4+5++1dw", "c": "HSdlbN4K31T73FLrVlVS0SrB24WEt7K3xf5CNKN5cCW1CFCdM4JcWYnFYl/wK+xDY5G+Tl5+Xbl8berPZSzh6yvkLbNvspCm9UlznTn+en3pJriDkN/0tz5YO1r5PgCi+7h19rd6bA+ECCFMcs7BIJaknz1YuAaRWi3qt4G0PEmJOqS9zMHH3p1KKa+/FltC"}, {"s": "VFawGKqe/JgVWaQPABKAow==", "i": "uwcqvdx766VkAhMa", "c": "j2lfo7ysQ0+nOl6Q0XJxAAZ3h/lVPsdmI6rcfrDUl/UGCkQLhJlw3vtpixpc1w52QOjzfqO0jNuFzXuBrKfb+9CQuBbyDxnerlhCnR4zQCbr5RqO69hTLb5JvcVxTD3j0l4hUDWWnMkygfZwrZjpRj3Qv2+hpmH48ih7gqTVkqxCQLPDSAbjTQaW91f1czvNBA=="}, {"s": "E5ZJF13TbzL0CKTvqaMvuQ==", "i": "cOdgLRYtr2ZdDC7R", "c": "6eoMJ4bEFUsxJJ9mcgVt/sq+pMSMKdIpV5szuPYplHjFbhqOIBdjV/RqQrJtFlS2d4o0JfubBIImGzkNsFLQbTcMlfYREaqKXsEUndcou663jpBwLmtfgMLz/sRGhe6rEVUAwhXcTNk83i44gBj7cf+6DdewqqUDBv52SbgVAb2qkr0IOkf08EA04e8aNf4B"}];
 function paint(map,meta){
  let found=0;const seen=new Set();
  window.STOCK=map;window.STOCKMETA=meta;
@@ -462,15 +462,15 @@ async function ghSync(force){
 }
 $('#sync').onclick=()=>ghSync(true);
 const dlg=$('#dlg');
-$('#cfgb').onclick=()=>{const c=getCfg()||{};$('#c_user').innerHTML=USERS.map(u=>`<option ${c.user===u.n?'selected':''}>${u.n}</option>`).join('');$('#c_err').textContent='';$('#c_repo').value=c.repo||'Javiermags/RevistaStock';$('#c_path').value=c.path||'stock/IA_AEROTERMIA.xlsx';$('#c_tok').value=c.token||'';dlg.classList.remove('hide');};
+$('#cfgb').onclick=()=>{const c=getCfg()||{};$('#c_user').value='';$('#c_pw').value='';$('#c_err').textContent='';$('#c_repo').value=c.repo||'Javiermags/RevistaStock';$('#c_path').value=c.path||'stock/IA_AEROTERMIA.xlsx';$('#c_tok').value=c.token||'';dlg.classList.remove('hide');};
 $('#c_x').onclick=()=>dlg.classList.add('hide');
 $('#c_off').onclick=()=>{try{localStorage.setItem(CFGK,JSON.stringify('off'))}catch(_){}dlg.classList.add('hide');$('#sync').hidden=true;};
 $('#c_ok').onclick=async()=>{
- const pw=$('#c_pw').value.trim(),un=$('#c_user').value;
- if(pw&&un){const u=USERS.find(x=>x.n===un);$('#c_err').textContent='Comprobando…';
-  try{const tok=await unlock(u,pw);const c={repo:'Javiermags/RevistaStock',path:'stock/IA_AEROTERMIA.xlsx',token:tok,user:un};
-   try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}$('#c_pw').value='';$('#c_err').textContent='';dlg.classList.add('hide');ghSync(true);identify();}
-  catch(_){$('#c_err').textContent='Contraseña incorrecta';}
+ const pw=$('#c_pw').value.trim(),un=$('#c_user').value.trim();
+ if(pw&&un){$('#c_err').textContent='Comprobando…';const r=await unlock(un,pw);
+  if(!r){$('#c_err').textContent='Nombre o contraseña incorrectos';return;}
+  const c={repo:'Javiermags/RevistaStock',path:'stock/IA_AEROTERMIA.xlsx',token:r.t,user:r.n,adm:!!r.a};
+  try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}$('#c_pw').value='';$('#c_err').textContent='';dlg.classList.add('hide');ghSync(true);identify();
   return;}
  const c={repo:$('#c_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/$/,''),path:$('#c_path').value.trim().replace(/^\//,''),token:$('#c_tok').value.trim()};
  if(!c.repo||!c.path)return;try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}dlg.classList.add('hide');ghSync(true);identify();};
@@ -503,12 +503,13 @@ function logVisit(){logEdit(d=>d.push({s:SID,t:new Date().toISOString(),d:DEV(),
 let qBuf=[],qT=null;
 function logSearch(q,n){if(!WHO)return;qBuf.push((n?'':'✗ ')+q);clearTimeout(qT);qT=setTimeout(()=>{const b=qBuf;qBuf=[];
  logEdit(d=>{let e=d.find(x=>x.s===SID);if(!e){e={s:SID,t:new Date().toISOString(),d:DEV(),q:[]};d.push(e);}e.q.push(...b);});},4000);}
-async function unlock(u,pw){const d=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
- const k0=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
- const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:d(u.s),iterations:200000,hash:'SHA-256'},k0,{name:'AES-GCM',length:256},false,['decrypt']);
- return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:d(u.i)},k,d(u.c)));}
-async function identify(){const c=getCfg();WHO=null;showWho();if(!c||!c.token||!c.user)return;const u=USERS.find(x=>x.n===c.user);if(!u)return;
- WHO={n:u.n,admin:!!u.a,f:u.n.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'')};showWho();logVisit();}
+async function unlock(name,pw){const d=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
+ const k0=await crypto.subtle.importKey('raw',new TextEncoder().encode(name.toLowerCase()+'\n'+pw),'PBKDF2',false,['deriveKey']);
+ for(const u of USERS){try{const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:d(u.s),iterations:200000,hash:'SHA-256'},k0,{name:'AES-GCM',length:256},false,['decrypt']);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:d(u.i)},k,d(u.c))));}catch(_){}}
+ return null;}
+async function identify(){const c=getCfg();WHO=null;showWho();if(!c||!c.token||!c.user)return;
+ WHO={n:c.user,admin:!!c.adm,f:c.user.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'')};showWho();logVisit();}
 function logout(){try{localStorage.removeItem(CFGK);localStorage.removeItem(KEY)}catch(_){}location.reload();}
 function showWho(){const w=$('#who');if(!w)return;w.innerHTML=WHO?`👤 <b>${WHO.n}</b> <a href="#" class="out" onclick="logout();return false">Salir</a>`:'';w.hidden=!WHO;
  document.querySelectorAll('.adm').forEach(b=>b.hidden=!(WHO&&WHO.admin));}
