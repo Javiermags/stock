@@ -459,7 +459,7 @@ $('#c_off').onclick=()=>{try{localStorage.setItem(CFGK,JSON.stringify('off'))}ca
 $('#c_ok').onclick=()=>{const c={repo:$('#c_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/$/,''),path:$('#c_path').value.trim().replace(/^\//,''),token:$('#c_tok').value.trim()};
  if(!c.repo||!c.path)return;try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}dlg.classList.add('hide');ghSync(true);identify();};
 // al abrir: pinta lo último guardado y comprueba GitHub
-(()=>{const s=load();s?paint(s.map,s.meta):paint(null);ghSync(false);identify();const g=getCfg();if(g&&!g.token&&!s)setTimeout(()=>$('#cfgb').click(),400);})();
+(()=>{const s=load();s?paint(s.map,s.meta):paint(null);ghSync(false);setTimeout(identify,0);const g=getCfg();if(g&&!g.token&&!s)setTimeout(()=>$('#cfgb').click(),400);})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)ghSync(false)});
 setInterval(()=>ghSync(false),10*60*1000);
 
