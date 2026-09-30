@@ -126,6 +126,10 @@ main{flex:1;min-width:0}
 .btn{background:var(--or);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:14px;cursor:pointer}
 .btn.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 .hide{display:none!important}
+.err{color:var(--ko);font-size:13px;min-height:16px;font-weight:600}
+.adv{font-size:13px;color:var(--mu)}.adv summary{cursor:pointer;margin-bottom:8px}.adv label{margin-top:8px}
+.dlg select{font:400 15px inherit;font-family:inherit;padding:9px 11px;border:1px solid var(--bd);border-radius:8px;background:var(--side);color:var(--tx)}
+.out{font-size:12px;color:var(--mu);margin-left:6px}
 .who{font-size:13px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--bd)}.who b{color:var(--or2)}
 .acb{width:100%;margin-top:6px}
 .dlg>div.accw{width:min(980px,100%);max-height:88vh;overflow:auto;gap:14px}
@@ -189,12 +193,16 @@ html.mob .toast{top:auto;bottom:120px}
 </div>
 <div class="hitc hide" id="hitc"></div>
 <div class="dlg hide" id="dlg"><div>
- <h3>Stock automático desde GitHub</h3>
+ <h3>Iniciar sesión</h3>
+ <label>Usuario<select id="c_user"></select></label>
+ <label>Contraseña<input id="c_pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')document.getElementById('c_ok').click()"></label>
+ <div class="err" id="c_err"></div>
+ <details class="adv"><summary>Avanzado (token manual)</summary>
  <label>Repositorio<input id="c_repo"></label>
  <label>Ruta del Excel en el repo<input id="c_path"></label>
- <label>Token de lectura<input id="c_tok" type="password"></label>
+ <label>Token de lectura<input id="c_tok" type="password"></label></details>
  <p>Se guarda solo en este dispositivo.</p>
- <div class="row"><button class="btn sec" id="c_off">Desactivar</button><button class="btn sec" id="c_x">Cancelar</button><button class="btn" id="c_ok">Guardar</button></div>
+ <div class="row"><button class="btn sec" id="c_off">Desactivar</button><button class="btn sec" id="c_x">Cancelar</button><button class="btn" id="c_ok">Entrar</button></div>
 </div></div>
 <div class="dlg hide" id="acc"><div class="accw">
  <div class="ah"><h3>Registro de accesos</h3><select id="accp" onchange="renderAcc()"></select><button class="btn sec" onclick="openAccesos()">⟳</button><button class="btn sec" onclick="$('#acc').classList.add('hide')">Cerrar</button></div>
@@ -388,6 +396,7 @@ function scanWorkbook(wb){
  return {map,src,shared,used,filas,hojas:wb.SheetNames.length};
 }
 
+const USERS=[{"n": "Javi", "a": true, "s": "1r7tUoxeimr9m7lccWVfwA==", "i": "EkWorjmMxAB9ezre", "c": "F+UQOqd1aAYivD72Ip0aeuBIHDK47e3yymp/hs+CE7pDGvjQ4gI6HMGY54ng9U5LqtPRc5os83oLd2PEIDxV/zPJVXM/wA9eLkZpcOTaytw/JqrIOD/5ZbzBf9CdqrPME1o/w2DcqvXyEzZoYQ=="}, {"n": "Jonas", "a": false, "s": "hU3o+FB9AbLu+wexnt1zrQ==", "i": "J22Knhfj0UH+8Z3H", "c": "SihfzgC9lViZwPcLTS/eB854y277hR32AdvLpxBJIOKbgrHyMm0xr+wjuOuH/EY0E9zr8KPGeb6fvqPvTKPKax/sMjaJuJQBHObPHE5Lv2hFMtnPxENxokywhtZnFP60DHucLKJfaPEI2M3ryw=="}, {"n": "Carlos", "a": false, "s": "voLV8ugLmkrPD5i2uf4Dgg==", "i": "HS4s/uqlY/cAXu8s", "c": "fOaVAN+ey4wxUwFoOvPjMoayZLKmvP78PlBFipZN6U32SF2OlYO5LLMiXtyePE4aT7SU3QPH08QZZbSDE3d/fkMg6waQBXxm1joUut9ICeBsTR0biRkKoMb1Kt70SgMoJs0+sWEmeSFsUUXaYA=="}, {"n": "Sergi", "a": false, "s": "xDFVM7I0+1LpGv1eAN2SmQ==", "i": "oQzI/aB17B0LxJJy", "c": "2BXdXc4j6iMAZ30s/3/V3PhqqP3RmBVP5DX0t0U7FY1/drSjmS454BHdkb2u8Qekdlk2EfK/BaYlaKDi43U7zfuEbsH7lca6KV78TTv+xwob0mkkzmrQOrxz5Mo2P8T7uE1oBSvFABnxAuYTNA=="}];
 function paint(map,meta){
  let found=0;const seen=new Set();
  window.STOCK=map;window.STOCKMETA=meta;
@@ -429,7 +438,7 @@ const getCfg=()=>{let s=null;try{s=JSON.parse(localStorage.getItem(CFGK)||'null'
 let busy=false;
 async function ghSync(force){
  const c=getCfg();$('#sync').hidden=!c;if(!c||busy)return;
- if(!c.token){if(!load())$('#st').innerHTML='🔒 Para ver el stock pulsa <b>⚙</b> e introduce el token de lectura';return;}
+ if(!c.token){if(!load())$('#st').innerHTML='🔒 Para ver el stock pulsa <b>⚙</b> e inicia sesión';return;}
  busy=true;
  const H={'Accept':'application/vnd.github+json'};if(c.token)H.Authorization='Bearer '+c.token;
  const base='https://api.github.com/repos/'+c.repo;const path=c.path.split('/').map(encodeURIComponent).join('/');
@@ -453,10 +462,17 @@ async function ghSync(force){
 }
 $('#sync').onclick=()=>ghSync(true);
 const dlg=$('#dlg');
-$('#cfgb').onclick=()=>{const c=getCfg()||{};$('#c_repo').value=c.repo||'Javiermags/RevistaStock';$('#c_path').value=c.path||'stock/IA_AEROTERMIA.xlsx';$('#c_tok').value=c.token||'';dlg.classList.remove('hide');};
+$('#cfgb').onclick=()=>{const c=getCfg()||{};$('#c_user').innerHTML=USERS.map(u=>`<option ${c.user===u.n?'selected':''}>${u.n}</option>`).join('');$('#c_err').textContent='';$('#c_repo').value=c.repo||'Javiermags/RevistaStock';$('#c_path').value=c.path||'stock/IA_AEROTERMIA.xlsx';$('#c_tok').value=c.token||'';dlg.classList.remove('hide');};
 $('#c_x').onclick=()=>dlg.classList.add('hide');
 $('#c_off').onclick=()=>{try{localStorage.setItem(CFGK,JSON.stringify('off'))}catch(_){}dlg.classList.add('hide');$('#sync').hidden=true;};
-$('#c_ok').onclick=()=>{const c={repo:$('#c_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/$/,''),path:$('#c_path').value.trim().replace(/^\//,''),token:$('#c_tok').value.trim()};
+$('#c_ok').onclick=async()=>{
+ const pw=$('#c_pw').value.trim(),un=$('#c_user').value;
+ if(pw&&un){const u=USERS.find(x=>x.n===un);$('#c_err').textContent='Comprobando…';
+  try{const tok=await unlock(u,pw);const c={repo:'Javiermags/RevistaStock',path:'stock/IA_AEROTERMIA.xlsx',token:tok,user:un};
+   try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}$('#c_pw').value='';$('#c_err').textContent='';dlg.classList.add('hide');ghSync(true);identify();}
+  catch(_){$('#c_err').textContent='Contraseña incorrecta';}
+  return;}
+ const c={repo:$('#c_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/$/,''),path:$('#c_path').value.trim().replace(/^\//,''),token:$('#c_tok').value.trim()};
  if(!c.repo||!c.path)return;try{localStorage.setItem(CFGK,JSON.stringify(c))}catch(_){}dlg.classList.add('hide');ghSync(true);identify();};
 // al abrir: pinta lo último guardado y comprueba GitHub
 (()=>{const s=load();s?paint(s.map,s.meta):paint(null);ghSync(false);setTimeout(identify,0);const g=getCfg();if(g&&!g.token&&!s)setTimeout(()=>$('#cfgb').click(),400);})();
@@ -487,10 +503,14 @@ function logVisit(){logEdit(d=>d.push({s:SID,t:new Date().toISOString(),d:DEV(),
 let qBuf=[],qT=null;
 function logSearch(q,n){if(!WHO)return;qBuf.push((n?'':'✗ ')+q);clearTimeout(qT);qT=setTimeout(()=>{const b=qBuf;qBuf=[];
  logEdit(d=>{let e=d.find(x=>x.s===SID);if(!e){e={s:SID,t:new Date().toISOString(),d:DEV(),q:[]};d.push(e);}e.q.push(...b);});},4000);}
-async function identify(){const c=getCfg();WHO=null;showWho();if(!c||!c.token)return;
- try{const h=await sha256(c.token);const u=await gGet('users.json',c.token);const me=u.data&&u.data.users&&u.data.users[h];
-  if(me){WHO={n:me.n,admin:!!me.admin,f:me.n.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'')};showWho();logVisit();}}catch(_){}}
-function showWho(){const w=$('#who');if(!w)return;w.innerHTML=WHO?`👤 <b>${WHO.n}</b>`:'';w.hidden=!WHO;
+async function unlock(u,pw){const d=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
+ const k0=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+ const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:d(u.s),iterations:200000,hash:'SHA-256'},k0,{name:'AES-GCM',length:256},false,['decrypt']);
+ return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:d(u.i)},k,d(u.c)));}
+async function identify(){const c=getCfg();WHO=null;showWho();if(!c||!c.token||!c.user)return;const u=USERS.find(x=>x.n===c.user);if(!u)return;
+ WHO={n:u.n,admin:!!u.a,f:u.n.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'')};showWho();logVisit();}
+function logout(){try{localStorage.removeItem(CFGK);localStorage.removeItem(KEY)}catch(_){}location.reload();}
+function showWho(){const w=$('#who');if(!w)return;w.innerHTML=WHO?`👤 <b>${WHO.n}</b> <a href="#" class="out" onclick="logout();return false">Salir</a>`:'';w.hidden=!WHO;
  document.querySelectorAll('.adm').forEach(b=>b.hidden=!(WHO&&WHO.admin));}
 // ---- panel de accesos (solo admin) ----
 async function openAccesos(){const c=getCfg();const dl=$('#acc');dl.classList.remove('hide');const body=$('#accb');body.innerHTML='<p>Cargando accesos…</p>';
